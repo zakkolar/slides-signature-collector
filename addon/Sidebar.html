@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+</head>
+<body>
+<style>
+    .branding-below {
+        bottom: 56px;
+        top: 0;
+    }
+    textarea{
+        width: 100%;
+    }
+    input[type='text']{
+        width: 100%;
+    }
+</style>
+
+<div class="sidebar branding-below">
+    <div id="form">
+        <h1>Tools</h1>
+
+        <div class="block form-group">
+            <label for="link_to_signature_page">
+                <b>Link to signature page</b><br>Send this link to collect signatures</label>
+            <? if(getSignaturePageUrl()) { ?>
+            <input type="text" id="link_to_signature_page" readonly onclick="this.select()" value="<?= getSignaturePageUrl() ?>">
+            <? } else { ?>
+            <p><i>To see a shortcut to the URL here, you need to visit the published page at least once.</i></p>
+            <ol>
+                <li>Go to Tools > Script editor</li>
+                <li>Go to Publish > Deploy as Web App</li>
+                <li>If you've never published the web app before, follow the installation guide and then proceed.</li>
+                <li>Copy the Current web app URL, paste it into a browser tab, and navigate there</li>
+                <li>Reload this sidebar by going to Signature Collector > Settings</li>
+            </ol>
+            <? } ?>
+        </div>
+
+
+        <h1>Settings</h1>
+
+        <div class="block form-group">
+            <label for="signature_page_description">
+                <b>Text for signature page</b><br>Displays above signature form</label>
+            <textarea id="signature_page_description" rows="5"><?= getSignaturePageDescription() ?></textarea>
+        </div>
+
+        <div class="block form-group">
+            <label for="thank_you_page_description">
+                <b>Text for thank you page</b><br>Displays after signature is submitted</label>
+            <textarea id="thank_you_page_description" rows="5"><?= getThankYouPageDescription() ?></textarea>
+        </div>
+
+
+        <div class="block form-group">
+            <label for="closed_page_description">
+                <b>Text for closed page</b><br>Only displayed when signature collection is not enabled</label>
+            <textarea id="closed_page_description" rows="5"><?= getClosedPageDescription() ?></textarea>
+        </div>
+
+        <div class="block">
+            <input type="checkbox" id="enableCollection" <? if(!getClosed()){?>checked<?}?>>
+            <label for="enableCollection">
+                Enable signature collection</label>
+        </div>
+
+        <div class="block">
+            <button class="blue" id="save">Save settings</button>
+        </div>
+    </div>
+    <div id="loader" style="display:none;">
+        <?!= include('Loader') ?>
+    </div>
+</div>
+
+<div class="sidebar bottom">
+  <span class="gray">
+    For more add-ons, tips, and tutorials, go to <a href="https://zak.io" target="_blank">Zak.io</a></span>
+</div>
+
+<script type="text/javascript">
+$('#save').click(function(){
+    $('#form').hide();
+    $('#loader').show();
+   google.script.run.withSuccessHandler(function(e){
+       google.script.run.showSidebar();
+   }).saveSettings({
+       signaturePageDescription: $('#signature_page_description').val(),
+       thankYouPageDescription: $('#thank_you_page_description').val(),
+       closedPageDescription: $('#closed_page_description').val(),
+       enableSignatureCollection: $('#enableCollection').prop("checked")
+   })
+});
+</script>
+</body>
+</html>

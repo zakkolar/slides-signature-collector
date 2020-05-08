@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+</head>
+<body>
+<style>
+    .branding-below {
+        bottom: 56px;
+        top: 0;
+    }
+    textarea{
+        width: 100%;
+    }
+    input[type='text']{
+        width: 100%;
+    }
+</style>
+
+<div class="sidebar branding-below">
+    <div id="form">
+        <button class="blue" id="refresh">Refresh list</button>
+
+        <? if(getSignatureList().length === 0){ ?>
+            <p><i>No signatures yet</i></p>
+        <? } ?>
+
+        <table>
+            <?
+                var names = getSignatureList();
+                for(var i=0; i<names.length; i++){
+                ?>
+            <tr><td><?= names[i] ?></td></tr>
+            <?
+                }
+            ?>
+        </table>
+
+        <div class="block">
+        </div>
+    </div>
+    <div id="loader" style="display:none;">
+        <?!= include('Loader') ?>
+    </div>
+</div>
+
+<div class="sidebar bottom">
+  <span class="gray">
+    For more add-ons, tips, and tutorials, go to <a href="https://zak.io" target="_blank">Zak.io</a></span>
+</div>
+
+<script type="text/javascript">
+    $('#refresh').click(function(e){
+        e.preventDefault();
+        $('#form').hide();
+        $('#loader').show();
+        google.script.run.showNameList()
+    });
+</script>
+</body>
+</html>

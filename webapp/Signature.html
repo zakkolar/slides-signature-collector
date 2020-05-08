@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+    <?!= include('webapp/signature-pad.css') ?>
+    <title>Signature Collector</title>
+  </head>
+  <body onselectstart="return false">
+
+
+
+
+
+
+    <div id="signature-pad" class="signature-pad">
+      <h1>Signature Collector</h1>
+      <p><?= getSignaturePageDescription() ?></p>
+      <div><label for='name' class="label">Your name: </label> <input type='text' id='name'></div>
+      <div class="label">Signature: </div>
+      <div class="signature-pad--body">
+        <canvas></canvas>
+      </div>
+      <div class="signature-pad--footer">
+
+        <div class="signature-pad--actions">
+          <div>
+            <button id='save'>Save</button>
+            <button id='clear'>Clear signature</button>
+          </div>
+        </div>
+      </div>
+      <div style="color: white; background-color: white;">
+        <p>This haiku will fix</p>
+        <p>a bug that will sometimes break</p>
+        <p>scrolling on iPhones</p>
+      </div>
+    </div>
+
+  <div>
+    <form id='form' action = '<?= ScriptApp.getService().getUrl() ?>' method='post'>
+
+      <input type='hidden' id='formName' name='name'>
+      <input type='hidden' id='imageData' name='imageData'>
+
+    </form>
+  </div>
+
+
+
+
+  <div id='loading' style='display:none;'>
+      <?!= include('Loader.html') ?>
+    </div>
+
+  </body>
+
+  <script type='text/javascript'>
+
+
+  var canvas = document.querySelector("canvas");
+
+  var signaturePad = new SignaturePad(canvas, {
+    minWidth: 1,
+    maxWidth: 3
+  });
+
+// Adjust canvas coordinate space taking into account pixel ratio,
+// to make it look crisp on mobile devices.
+// This also causes canvas to be cleared.
+function resizeCanvas() {
+  // When zoomed out to less than 100%, for some very strange reason,
+  // some browsers report devicePixelRatio as less than 1
+  // and only part of the canvas is cleared then.
+
+
+  var ratio =  Math.max(window.devicePixelRatio || 1, 1);
+
+  // This part causes the canvas to be cleared
+  canvas.width = canvas.offsetWidth * ratio;
+  canvas.height = canvas.offsetHeight * ratio;
+  canvas.getContext("2d").scale(ratio, ratio);
+
+
+  // This library does not listen for canvas changes, so after the canvas is automatically
+  // cleared by the browser, SignaturePad#isEmpty might still return false, even though the
+  // canvas looks empty, because the internal data of this library wasn't cleared. To make sure
+  // that the state of this library is consistent with visual state of the canvas, you
+  // have to clear it manually.
+  signaturePad.clear();
+
+}
+
+// On mobile devices it might make more sense to listen to orientation change,
+// rather than window resize events.
+window.addEventListener("orientationchange",resizeCanvas);
+resizeCanvas();
+
+
+
+
+SignaturePad.prototype.removeBlanks = function () {
+        var imgWidth = this._ctx.canvas.width;
+        var imgHeight = this._ctx.canvas.height;
+        var imageData = this._ctx.getImageData(0, 0, imgWidth, imgHeight),
+        data = imageData.data,
+        getAlpha = function(x, y) {
+            return data[(imgWidth*y + x) * 4 + 3]
+        },
+        scanY = function (fromTop) {
+            var offset = fromTop ? 1 : -1;
+
+            // loop through each row
+            for(var y = fromTop ? 0 : imgHeight - 1; fromTop ? (y < imgHeight) : (y > -1); y += offset) {
+
+                // loop through each column
+                for(var x = 0; x < imgWidth; x++) {
+                    if (getAlpha(x, y)) {
+                        return y;
+                    }
+                }
+            }
+            return null; // all image is white
+        },
+        scanX = function (fromLeft) {
+            var offset = fromLeft? 1 : -1;
+
+            // loop through each column
+            for(var x = fromLeft ? 0 : imgWidth - 1; fromLeft ? (x < imgWidth) : (x > -1); x += offset) {
+
+                // loop through each row
+                for(var y = 0; y < imgHeight; y++) {
+                    if (getAlpha(x, y)) {
+                        return x;
+                    }
+                }
+            }
+            return null; // all image is white
+        };
+
+        var cropTop = scanY(true),
+        cropBottom = scanY(false),
+        cropLeft = scanX(true),
+        cropRight = scanX(false);
+
+        var relevantData = this._ctx.getImageData(cropLeft, cropTop, cropRight-cropLeft, cropBottom-cropTop);
+        this._canvas.width = cropRight-cropLeft;
+        this._canvas.height = cropBottom-cropTop;
+        this._ctx.clearRect(0, 0, cropRight-cropLeft, cropBottom-cropTop);
+        this._ctx.putImageData(relevantData, 0, 0);
+    };
+
+
+
+
+$(function(){
+
+$('#clear').click(function(){
+signaturePad.clear();
+})
+
+$('#save').click(function(){
+
+
+
+var name = $('#name').val();
+
+
+
+if(!name){
+  alert("Please type your name");
+  $('#name').focus();
+}
+else if(signaturePad.isEmpty()){
+  alert("Please add your signature");
+}
+else{
+$('#formName').val(name);
+
+  signaturePad.removeBlanks();
+
+$('#imageData').val(signaturePad.toDataURL());
+
+
+$('#signature-pad').hide();
+$('#loading').show();
+
+
+
+$('#form').submit();
+}
+
+
+
+});
+
+});
+  </script>
+</html>
+
+
