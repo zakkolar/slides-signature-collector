@@ -91,24 +91,13 @@ function getPresentation(){
 
 
 
-function splitPostData(e){
-  var data = e.postData.contents;
-  var entries = data.split('&');
-  var returnData = {};
-  for(var i=0; i<entries.length; i++){
-   var entry = entries[i].split('=');
-    returnData[decodeURIComponent(entry[0].replace(/\+/g, '%20'))] = decodeURIComponent(entry[1].replace(/\+/g, '%20'));
-  }
-  return returnData;
-}
-
 function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename)
       .getContent();
 }
 
 
-function doPost(e){
+function saveSignature(name, imageData){
 
 
     if(getClosed()){
@@ -119,10 +108,8 @@ function doPost(e){
 
     var presentation = getPresentation();
 
-    var post = splitPostData(e);
-
     // @ts-ignore
-    var newSignatureData = decodeURIComponent(post.imageData).replace('data:image/png;base64,', '');
+    var newSignatureData = imageData.replace('data:image/png;base64,', '');
 
 
     var decoded = Utilities.base64Decode(newSignatureData);
@@ -139,9 +126,7 @@ function doPost(e){
     image.setTop(Math.min(Math.random() * presentation.getPageHeight(), presentation.getPageHeight() - image.getHeight()));
 
     // @ts-ignore
-    image.setTitle(getSignatureLabel(post.name));
-
-   return  showPage('webapp/Thanks', 'Thanks for submitting!');
+    image.setTitle(getSignatureLabel(name));
 
 
 }

@@ -15,37 +15,43 @@
 
 
     <div id="signature-pad" class="signature-pad">
-      <h1>Signature Collector</h1>
-      <p><?= getSignaturePageDescription() ?></p>
-      <div><label for='name' class="label">Your name: </label> <input type='text' id='name'></div>
-      <div class="label">Signature: </div>
-      <div class="signature-pad--body">
-        <canvas></canvas>
-      </div>
-      <div class="signature-pad--footer">
+      <div id="form">
 
-        <div class="signature-pad--actions">
-          <div>
-            <button id='save'>Save</button>
-            <button id='clear'>Clear signature</button>
+
+        <h1>Signature Collector</h1>
+        <p><?= getSignaturePageDescription() ?></p>
+        <div><label for='name' class="label">Your name: </label> <input type='text' id='name'></div>
+        <div class="label">Signature: </div>
+        <div class="signature-pad--body">
+          <canvas></canvas>
+        </div>
+        <div class="signature-pad--footer">
+
+          <div class="signature-pad--actions">
+            <div>
+              <button id='save'>Save</button>
+              <button id='clear'>Clear signature</button>
+            </div>
           </div>
         </div>
+        <div style="color: white; background-color: white;">
+          <p>This haiku will fix</p>
+          <p>a bug that will sometimes break</p>
+          <p>scrolling on iPhones</p>
+        </div>
+    </div>
+      <div id="thankyou" style="display:none;">
+        <h1>Thanks for submitting!</h1>
+        <p><?= getThankYouPageDescription() ?></p>
       </div>
-      <div style="color: white; background-color: white;">
-        <p>This haiku will fix</p>
-        <p>a bug that will sometimes break</p>
-        <p>scrolling on iPhones</p>
+
+      <div id="error" style="display:none">
+        <h1>Error saving</h1>
+        <p>Please try again later. Error details:</p>
+        <div id="errorDetails"></div>
       </div>
     </div>
 
-  <div>
-    <form id='form' action = '<?= ScriptApp.getService().getUrl() ?>' method='post'>
-
-      <input type='hidden' id='formName' name='name'>
-      <input type='hidden' id='imageData' name='imageData'>
-
-    </form>
-  </div>
 
 
 
@@ -176,19 +182,24 @@ else if(signaturePad.isEmpty()){
   alert("Please add your signature");
 }
 else{
-$('#formName').val(name);
-
-  signaturePad.removeBlanks();
-
-$('#imageData').val(signaturePad.toDataURL());
 
 
-$('#signature-pad').hide();
+signaturePad.removeBlanks();
+
+
+
+$('#form').hide();
 $('#loading').show();
 
+  google.script.run.withSuccessHandler(function(){
+    $('#loading').hide();
+    $('#thankyou').show();
+  }).withFailureHandler(function(e){
+    $('#loading').hide();
+    $('#error').show();
+    $('#errorDetails').html(e);
+  }).saveSignature(name, signaturePad.toDataURL())
 
-
-$('#form').submit();
 }
 
 
