@@ -97,7 +97,7 @@ function splitPostData(e){
   var returnData = {};
   for(var i=0; i<entries.length; i++){
    var entry = entries[i].split('=');
-    returnData[entry[0]] = entry[1];
+    returnData[decodeURIComponent(entry[0].replace(/\+/g, '%20'))] = decodeURIComponent(entry[1].replace(/\+/g, '%20'));
   }
   return returnData;
 }
