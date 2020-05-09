@@ -120,13 +120,28 @@ function saveSignature(name, imageData){
     // @ts-ignore
     var image = slide.insertImage(blob);
 
+
+
+    // @ts-ignore
+    image.setTitle(getSignatureLabel(name));
+
+    const maxHeight = 80;
+
+    if(image.getHeight()>maxHeight){
+      const newHeight = maxHeight;
+      const currentHeight = image.getHeight();
+      const currentWidth = image.getWidth();
+
+      const newWidth = newHeight / currentHeight * currentWidth;
+
+      image.setWidth(newWidth);
+      image.setHeight(newHeight);
+    }
+
     // @ts-ignore
     image.setLeft(Math.min(Math.random() * presentation.getPageWidth(), presentation.getPageWidth() - image.getWidth()));
     // @ts-ignore
     image.setTop(Math.min(Math.random() * presentation.getPageHeight(), presentation.getPageHeight() - image.getHeight()));
-
-    // @ts-ignore
-    image.setTitle(getSignatureLabel(name));
 
 
 }
