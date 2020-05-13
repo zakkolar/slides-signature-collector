@@ -12,11 +12,22 @@
         bottom: 56px;
         top: 0;
     }
-    textarea{
-        width: 100%;
+   td{
+       padding:4px;
+       text-align:center;
+   }
+   img{
+       max-height:60px;
+       height: auto;
+       width: auto;
+       max-width:150px;
+   }
+    th{
+        text-align:center;
+        font-weight: bold;
     }
-    input[type='text']{
-        width: 100%;
+    table{
+        width:100%;
     }
 </style>
 
@@ -24,19 +35,34 @@
     <div id="form">
         <button class="blue" id="refresh">Refresh list</button>
 
+        <p>If you accidentally delete a signature, you can restore it by closing this box and using the "undo" functionality or viewing the version history in Slides. </p>
+
         <? if(getSignatureList().length === 0){ ?>
             <p><i>No signatures yet</i></p>
         <? } ?>
 
         <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Signature</th>
+                <th>Delete?</th>
+            </tr>
+            </thead>
+            <tbody>
             <?
                 var names = getSignatureList();
                 for(var i=0; i<names.length; i++){
                 ?>
-            <tr><td><?= names[i] ?></td></tr>
+            <tr>
+                <td style="width:100px"><?= names[i].name ?></td>
+                <td><img alt="<?!= names[i].alt ?>" src="<?!= names[i].image ?>"></td>
+                <td><button data-name="<?= names[i].name?>" data-object-id="<?= names[i].objectId ?>" class="delete red">Delete</button></td>
+            </tr>
             <?
                 }
             ?>
+            </tbody>
         </table>
 
         <div class="block">
@@ -59,6 +85,21 @@
         $('#loader').show();
         google.script.run.showNameList()
     });
+
+    $('.delete').click(function(e){
+        var name = $(e.target).attr('data-name');
+        var objectId = $(e.target).attr('data-object-id');
+        if(confirm('Are you sure you want to delete the signature for '+name+'?')){
+            $('#form').hide();
+            $('#loader').show();
+            google.script.run.withSuccessHandler(function(e){
+                google.script.run.showNameList();
+            }).withFailureHandler(function(e) {
+                console.error(e);
+            }).deleteSignature(objectId);
+        }
+
+    })
 </script>
 </body>
 </html>

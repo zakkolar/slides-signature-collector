@@ -172,20 +172,39 @@ function showNameList(){
       .showModalDialog(html,'Submitted Names');
 }
 
+function deleteSignature(objectId){
+    const slide = getSlide();
+    slide.getPageElementById(objectId).remove();
+}
+
 function getSignatureList(){
   const slide = getSlide();
 
-  const images = slide.getImages();
+  const signatures = slide.getImages();
   const prefix = getSignaturePrefix();
 
   const names = [];
 
-  for(let image of images){
-    const description = image.getTitle();
+  for(let signature of signatures){
+
+    const description = signature.getTitle();
+
+    const image = `data:image/png;base64,${Utilities.base64Encode(signature.getBlob().getBytes())}`;
+
+    const objectId = signature.getObjectId();
+
+
     if(description.indexOf(prefix)>-1){
       const name = description.replace(prefix, "");
-      console.log(name);
-      names.push(name);
+
+      const obj = {
+        name: name,
+        image: image,
+        objectId: objectId,
+        alt: description,
+      }
+
+      names.push(obj);
     }
   }
 
