@@ -208,7 +208,7 @@ function getSignatureList(){
     }
   }
 
-  return names.sort();
+  return names.sort((a, b) => (a.name > b.name) ? 1 : -1);
 }
 
 enum PROPERTIES  {
