@@ -177,6 +177,27 @@ function deleteSignature(objectId){
     slide.getPageElementById(objectId).remove();
 }
 
+function getSignatureImage(objectId){
+  const slide = getSlide();
+  const signatures = slide.getImages();
+  for(let signature of signatures) {
+    if(signature.getObjectId() === objectId){
+      const description = signature.getTitle();
+
+        const image = `data:image/png;base64,${Utilities.base64Encode(signature.getBlob().getBytes())}`;
+
+        return {
+          image: image,
+          alt: description
+        };
+
+    }
+  }
+
+  return objectId;
+
+}
+
 function getSignatureList(){
   const slide = getSlide();
 
@@ -189,7 +210,7 @@ function getSignatureList(){
 
     const description = signature.getTitle();
 
-    const image = `data:image/png;base64,${Utilities.base64Encode(signature.getBlob().getBytes())}`;
+
 
     const objectId = signature.getObjectId();
 
@@ -199,10 +220,10 @@ function getSignatureList(){
 
       const obj = {
         name: name,
-        image: image,
         objectId: objectId,
-        alt: description,
       }
+
+
 
       names.push(obj);
     }
