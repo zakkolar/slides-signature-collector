@@ -147,7 +147,7 @@ function saveSignature(name, imageData){
 }
 
 function onOpen(e){
-  SlidesApp.getUi().createMenu('Signature Collector')
+  SlidesApp.getUi().createAddonMenu()
       .addItem('Show submitted names','showNameList')
       .addItem('Settings','showSidebar')
       .addToUi();
